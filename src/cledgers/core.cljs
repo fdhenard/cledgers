@@ -15,8 +15,8 @@
                                      {:id 2
                                       :amount 9.99
                                       :desc "a dang book"}]
-                      :xaction/new {:amount nil
-                                    :desc nil}}))
+                      :xaction/new {:desc nil
+                                    :amount nil}}))
 
 (defmulti read (fn [env key params] key))
 
@@ -43,32 +43,39 @@
 
 (defmethod mutate 'xaction/update-new
   [{:keys [state] :as env} key params]
-  {:action #(swap! state assoc-in [:xaction/new :desc] (-> params :desc))})
+  ;; {:action #(swap! state assoc-in [:xaction/new :desc] (-> params :desc))}
+  {:action #(swap! state assoc-in [:xaction/new (-> params :key)] (-> params :val))})
 
 (defn new-todo-row [c new]
-  (dom/tr nil
-          (dom/td nil nil)
-          (dom/td nil
-                  (dom/input
-                   #js {:ref "descIn"
-                        :id "desc-in"
-                        ;; :onKeyDown (fn [evt] stub)
-                        :onChange (fn [evt]
-                                    (let [val (-> evt .-target .-value)]
-                                      ;; (.log js/console "value: " val)
-                                      (om/transact! c
-                                                    `[(xaction/update-new
-                                                       {:desc ~val})])))
-                        :value (-> new :desc)
-                        }))
-          (dom/td nil
-                  (dom/input
-                   #js {:ref "amtIn"
-                        :id "amt-in"
-                        :onKeyDown #(.log js/console % "pressed: " (.-keyCode %))}))
-          (dom/td nil
-                  ;; (dom/button #js {:onClick } "Add")
-                  nil)))
+  (let [update-new (fn [new-key]
+                     (fn [evt]
+                       (let [val (-> evt .-target .-value)]
+                         ;; (.log js/console "value: " val)
+                         (om/transact! c
+                                       `[(xaction/update-new
+                                          {:key ~new-key
+                                           :val ~val})]))))]
+    (dom/tr nil
+            (dom/td nil nil)
+            (dom/td nil
+                    (dom/input
+                     #js {:ref "descIn"
+                          :id "desc-in"
+                          ;; :onKeyDown (fn [evt] stub)
+                          :onChange (update-new :desc)
+                          :value (-> new :desc)
+                          }))
+            (dom/td nil
+                    (dom/input
+                     #js {:ref "amtIn"
+                          :id "amt-in"
+                          ;; :onKeyDown #(.log js/console % "pressed: " (.-keyCode %))
+                          :onChange (update-new :amount)
+                          :value (-> new :amount)
+                          }))
+            (dom/td nil
+                    ;; (dom/button #js {:onClick } "Add")
+                    nil))))
 
 (defui XactionList
   ;; static om/IQueryParams
