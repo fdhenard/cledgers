@@ -15,8 +15,8 @@
                                      {:id 2
                                       :amount 9.99
                                       :desc "a dang book"}]
-                      :xaction/new {:amount "empty"
-                                    :desc "empty"}}))
+                      :xaction/new {:amount nil
+                                    :desc nil}}))
 
 (defmulti read (fn [env key params] key))
 
@@ -81,12 +81,7 @@
                   (dom/input
                    #js {:ref "descIn"
                         :id "desc-in"
-                        ;; :onKeyDown (fn [evt]
-                        ;;              (let [my-c c
-                        ;;                    my-new new]
-                        ;;                ;; (.log js/console evt "pressed: " (.-keyCode evt))
-                        ;;                (.log js/console "value: " (-> evt .-target .-value))
-                        ;;                ))
+                        ;; :onKeyDown (fn [evt] stub)
                         :onChange (fn [evt]
                                     (let [val (-> evt .-target .-value)]
                                       ;; (.log js/console "value: " val)
@@ -103,8 +98,6 @@
           (dom/td nil
                   ;; (dom/button #js {:onClick } "Add")
                   nil)))
-
-(defn show-new-todo [c])
 
 (defui XactionList
   ;; static om/IQueryParams
