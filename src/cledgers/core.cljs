@@ -34,45 +34,16 @@
 
 ;; (defmulti mutate om/dispatch)
 
-;; (defmethod mutate 'xaction/update-new
-;;   [{:keys [state ref]} key new-props]
-;;   {:remote true
-;;    :action ;; OPTIMISTIC UPDATE
-;;    (fn []
-;;      (swap! state update-in ref merge new-props))
-;;    })
 ;; (defmethod mutate :default
 ;;   [{:keys [state] :as env} key params]
 ;;   (.log js/console "here!")
 ;;   ) }
 
-(defn mutate
-  [{:keys [state] :as env} key params]
-  ;; (.log js/console "here!")
-  ;; (pr-str {:test "hi"})
-  ;; (.log js/console "param" (-> params :desc) "key == dosomething" (= key 'xaction/dosomething))
-  (if (= 'xaction/dosomething key)
-    {:action #(do
-                ;; (.log js/console "here")
-                (swap! state assoc-in [:xaction/new :desc] (-> params :desc)))}
-    {:value :not-found}))
+(defmulti mutate om/dispatch)
 
-;; (defui NewXaction
-;;   Object
-;;   (render [this]
-;;           (dom/table nil
-;;                      (dom/thead nil
-;;                                 (dom/tr nil
-;;                                         (dom/th nil "Id")
-;;                                         (dom/th nil "Desc")
-;;                                         (dom/th nil "Amount")
-;;                                         (dom/th nil "Add")))
-;;                      (dom/tbody nil
-;;                                 (dom/tr nil
-;;                                         (dom/td nil (dom/input {:type "text"}))
-;;                                         (dom/td nil (dom/input {:type "text"}))
-;;                                         (dom/td nil (dom/input {:type "text"}))
-;;                                         (dom/td nil (dom/button nil "Add")))))))
+(defmethod mutate 'xaction/update-new
+  [{:keys [state] :as env} key params]
+  {:action #(swap! state assoc-in [:xaction/new :desc] (-> params :desc))})
 
 (defn new-todo-row [c new]
   (dom/tr nil
@@ -86,7 +57,7 @@
                                     (let [val (-> evt .-target .-value)]
                                       ;; (.log js/console "value: " val)
                                       (om/transact! c
-                                                    `[(xaction/dosomething
+                                                    `[(xaction/update-new
                                                        {:desc ~val})])))
                         :value (-> new :desc)
                         }))
