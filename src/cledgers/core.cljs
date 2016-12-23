@@ -15,8 +15,8 @@
                                      {:id 2
                                       :amount 9.99
                                       :desc "a dang book"}]
-                      :xaction/new {:amount nil
-                                    :desc nil}}))
+                      :xaction/new {:amount "empty"
+                                    :desc "empty"}}))
 
 (defmulti read (fn [env key params] key))
 
@@ -50,10 +50,10 @@
   [{:keys [state] :as env} key params]
   ;; (.log js/console "here!")
   ;; (pr-str {:test "hi"})
-  (.log js/console "param" (-> params :desc) "key == dosomething" (= key 'xaction/dosomething))
+  ;; (.log js/console "param" (-> params :desc) "key == dosomething" (= key 'xaction/dosomething))
   (if (= 'xaction/dosomething key)
     {:action #(do
-                (.log js/console "here")
+                ;; (.log js/console "here")
                 (swap! state assoc-in [:xaction/new :desc] (-> params :desc)))}
     {:value :not-found}))
 
@@ -89,10 +89,11 @@
                         ;;                ))
                         :onChange (fn [evt]
                                     (let [val (-> evt .-target .-value)]
-                                      (.log js/console "value: " val)
+                                      ;; (.log js/console "value: " val)
                                       (om/transact! c
                                                     `[(xaction/dosomething
                                                        {:desc ~val})])))
+                        :value (-> new :desc)
                         }))
           (dom/td nil
                   (dom/input
