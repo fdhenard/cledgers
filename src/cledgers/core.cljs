@@ -43,7 +43,6 @@
 
 (defmethod mutate 'xaction/update-new
   [{:keys [state] :as env} key params]
-  ;; {:action #(swap! state assoc-in [:xaction/new :desc] (-> params :desc))}
   {:action #(swap! state assoc-in [:xaction/new (-> params :key)] (-> params :val))})
 
 (defn new-todo-row [c new]
